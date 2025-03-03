@@ -1,0 +1,209 @@
+/* App.css */
+html,
+body,
+#root,
+.app-container {
+  padding: 0;
+  margin: 0;
+  height: 100vh;
+  width: 100%;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  position: relative;
+}
+
+.location-container {
+  width: 350px;
+  padding: 20px;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  background: rgba(23, 25, 35, 0.9);
+  backdrop-filter: blur(8px);
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  color: white;
+}
+
+.location-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.location-input:focus {
+  outline: none;
+  border-color: #4a9eff;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.2);
+}
+
+.location-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.location-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 8px;
+}
+
+.location-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.location-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.location-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.location-item {
+  padding: 12px;
+  margin: 4px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+}
+
+.location-item:hover {
+  background: rgba(74, 158, 255, 0.2);
+  color: white;
+}
+
+.location-button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #4a9eff 0%, #2d7eea 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.location-button:hover {
+  background: linear-gradient(135deg, #2d7eea 0%, #1c6ddb 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(45, 126, 234, 0.3);
+}
+
+.location-error {
+  margin-top: 12px;
+  color: #ff4a4a;
+  font-size: 14px;
+  padding: 8px 12px;
+  background: rgba(255, 74, 74, 0.1);
+  border-radius: 6px;
+  border-left: 3px solid #ff4a4a;
+}
+
+.coordinate-panel {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 9999;
+  background: rgba(23, 25, 35, 0.9);
+  backdrop-filter: blur(8px);
+  padding: 20px;
+  border-radius: 12px;
+  font-size: 14px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  color: white;
+  min-width: 250px;
+}
+
+.coordinate-panel p {
+  margin: 8px 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ndvi-value {
+  font-weight: 600;
+  margin-top: 15px !important;
+  color: #4aff9f !important;
+  font-size: 16px;
+  padding: 8px 12px;
+  background: rgba(74, 255, 159, 0.1);
+  border-radius: 6px;
+}
+
+.mini-map {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 250px;
+  height: 250px;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.ndvi-panel {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 250px;
+  height: 250px;
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  background: rgba(23, 25, 35, 0.9);
+}
+
+.ndvi-header {
+  background: rgba(23, 25, 35, 0.9);
+  padding: 12px 16px;
+  font-size: 14px;
+  color: white;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ndvi-panel img {
+  width: 100%;
+  height: calc(100% - 41px);
+  object-fit: cover;
+}
+
+/* .esri-view-root, .esri-view-surface{
+  min-height: 50vh;
+} */
+
+.calcite-theme-light{
+  position: absolute;
+  top: 0;
+  left: 0;
+  max-width: 200px;
+  max-height: 100px;
+}
+
+.main-map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
