@@ -10,7 +10,10 @@ const CoordinatePanel = memo(({ coordinates, ndviValue }) => (
         <p>Coordinates:</p>
         <p>Latitude: {coordinates.latitude.toFixed(6)}</p>
         <p>Longitude: {coordinates.longitude.toFixed(6)}</p>
-        {ndviValue && <p className="ndvi-value">NDVI: {ndviValue}</p>}
+        {ndviValue && <p className="ndvi-value">{ndviValue.assessment}</p>}
+        {ndviValue && (
+          <p className="ndvi-value">NDVI: {ndviValue.averageNDVI}</p>
+        )}
       </>
     ) : (
       <p>Click on the map to get coordinates</p>
@@ -41,11 +44,9 @@ function App() {
   // const [location, setLocation] = useState(null);
   const [error, setError] = useState(null);
 
-
   const [ndviValue, setNdviValue] = useState(null);
   const [ndviImage, setNdviImage] = useState(null);
   const [locations, setLocations] = useState([]);
-
   const [coordinates, setCoordinates] = useState({
     latitude: null,
     longitude: null,
@@ -57,7 +58,9 @@ function App() {
     if (!query.trim()) return;
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          query
+        )}`
       );
       const data = await response.json();
       if (data.length > 0) {
@@ -68,13 +71,10 @@ function App() {
         setLocations([]);
       }
     } catch (err) {
-      console.log(err)
+      console.log(err);
       setError("Error fetching location");
     }
   };
-
-
-
 
   // Memoize the upload function
   const captureMiniMapAndUpload = useCallback(async (miniView) => {
@@ -85,7 +85,7 @@ function App() {
 
     try {
       await miniView.goTo(miniView.center);
-      
+
       const screenshot = await miniView.takeScreenshot({
         format: "png",
         quality: 100,
@@ -93,7 +93,7 @@ function App() {
         height: 200,
       });
 
-      const blob = await fetch(screenshot.dataUrl).then(res => res.blob());
+      const blob = await fetch(screenshot.dataUrl).then((res) => res.blob());
       const formData = new FormData();
       formData.append("image", blob, "minimap.png");
 
@@ -109,7 +109,7 @@ function App() {
 
       const data = await response.json();
       if (data?.ndvi) {
-        setNdviValue(data.ndvi.averageNDVI);
+        setNdviValue(data.ndvi);
         if (data.ndviImage) {
           setNdviImage(`http://localhost:3000/uploads/${data.ndviImage}`);
         }
@@ -120,65 +120,68 @@ function App() {
   }, []);
 
   // Memoize the click handler
-  const handleMapClick = useCallback(async (event, view, satelliteTracks, miniView, Graphic) => {
-    event.stopPropagation();
+  const handleMapClick = useCallback(
+    async (event, view, satelliteTracks, miniView, Graphic) => {
+      event.stopPropagation();
 
-    const response = await view.hitTest(event);
-    satelliteTracks.removeAll();
+      const response = await view.hitTest(event);
+      satelliteTracks.removeAll();
 
-    const mapPoint = response.results.length
-      ? response.results[0].mapPoint
-      : event.mapPoint;
+      const mapPoint = response.results.length
+        ? response.results[0].mapPoint
+        : event.mapPoint;
 
-    if (!mapPoint) return;
+      if (!mapPoint) return;
 
-    const { latitude, longitude } = mapPoint;
-    setCoordinates({ latitude, longitude });
+      const { latitude, longitude } = mapPoint;
+      setCoordinates({ latitude, longitude });
 
-    const pinpoint = new Graphic({
-      geometry: {
-        type: "point",
-        longitude,
-        latitude,
-      },
-      symbol: {
-        type: "simple-marker",
-        style: "circle",
-        color: "red",
-        size: "12px",
-        outline: {
-          color: "white",
-          width: 2,
+      const pinpoint = new Graphic({
+        geometry: {
+          type: "point",
+          longitude,
+          latitude,
         },
-      },
-    });
-
-    const textGraphic = new Graphic({
-      geometry: {
-        type: "point",
-        longitude,
-        latitude: latitude + 1,
-      },
-      symbol: {
-        type: "text",
-        color: "black",
-        haloColor: "white",
-        haloSize: "1px",
-        text: `Lat: ${latitude.toFixed(6)}\nLon: ${longitude.toFixed(6)}`,
-        font: {
-          size: 12,
-          family: "Arial",
+        symbol: {
+          type: "simple-marker",
+          style: "circle",
+          color: "red",
+          size: "12px",
+          outline: {
+            color: "white",
+            width: 2,
+          },
         },
-      }
-    });
+      });
 
-    satelliteTracks.addMany([pinpoint, textGraphic]);
-    miniView.center = [longitude, latitude];
+      const textGraphic = new Graphic({
+        geometry: {
+          type: "point",
+          longitude,
+          latitude: latitude + 1,
+        },
+        symbol: {
+          type: "text",
+          color: "black",
+          haloColor: "white",
+          haloSize: "1px",
+          text: `Lat: ${latitude.toFixed(6)}\nLon: ${longitude.toFixed(6)}`,
+          font: {
+            size: 12,
+            family: "Arial",
+          },
+        },
+      });
 
-    setTimeout(() => {
-      captureMiniMapAndUpload(miniView);
-    }, 1500);
-  }, [captureMiniMapAndUpload]);
+      satelliteTracks.addMany([pinpoint, textGraphic]);
+      miniView.center = [longitude, latitude];
+
+      setTimeout(() => {
+        captureMiniMapAndUpload(miniView);
+      }, 1500);
+    },
+    [captureMiniMapAndUpload]
+  );
 
   useEffect(() => {
     let cleanup = () => {};
@@ -234,7 +237,7 @@ function App() {
         satelliteTracksRef.current = satelliteTracks;
 
         // Add click event listener
-        const clickHandler = (event) => 
+        const clickHandler = (event) =>
           handleMapClick(event, view, satelliteTracks, miniView, Graphic);
         view.on("click", clickHandler);
 
@@ -253,100 +256,108 @@ function App() {
   }, [handleMapClick]);
 
   // Modify the selectLocation function to handle map navigation and pinpointing
-  const selectLocation = useCallback((location) => {
-    const view = viewInstanceRef.current;
-    const miniView = miniViewInstanceRef.current;
-    const satelliteTracks = satelliteTracksRef.current;
-    
-    if (!view || !miniView || !satelliteTracks) return;
+  const selectLocation = useCallback(
+    (location) => {
+      const view = viewInstanceRef.current;
+      const miniView = miniViewInstanceRef.current;
+      const satelliteTracks = satelliteTracksRef.current;
 
-    // Load the Graphic module dynamically since we're outside the main effect
-    loadModules(["esri/Graphic"]).then(([Graphic]) => {
-      // Clear existing graphics
-      satelliteTracks.removeAll();
+      if (!view || !miniView || !satelliteTracks) return;
 
-      const latitude = parseFloat(location.lat);
-      const longitude = parseFloat(location.lon);
+      // Load the Graphic module dynamically since we're outside the main effect
+      loadModules(["esri/Graphic"]).then(([Graphic]) => {
+        // Clear existing graphics
+        satelliteTracks.removeAll();
 
-      // Create a point for the location
-      const pinpoint = new Graphic({
-        geometry: {
-          type: "point",
-          longitude,
-          latitude,
-        },
-        symbol: {
-          type: "simple-marker",
-          style: "circle",
-          color: "red",
-          size: "12px",
-          outline: {
-            color: "white",
-            width: 2,
+        const latitude = parseFloat(location.lat);
+        const longitude = parseFloat(location.lon);
+
+        // Create a point for the location
+        const pinpoint = new Graphic({
+          geometry: {
+            type: "point",
+            longitude,
+            latitude,
           },
-        },
-      });
-
-      // Add text label
-      const textGraphic = new Graphic({
-        geometry: {
-          type: "point",
-          longitude,
-          latitude: latitude + 1,
-        },
-        symbol: {
-          type: "text",
-          color: "black",
-          haloColor: "white",
-          haloSize: "1px",
-          text: `${location.display_name}\nLat: ${latitude.toFixed(6)}\nLon: ${longitude.toFixed(6)}`,
-          font: {
-            size: 12,
-            family: "Arial",
+          symbol: {
+            type: "simple-marker",
+            style: "circle",
+            color: "red",
+            size: "12px",
+            outline: {
+              color: "white",
+              width: 2,
+            },
           },
-        }
+        });
+
+        // Add text label
+        const textGraphic = new Graphic({
+          geometry: {
+            type: "point",
+            longitude,
+            latitude: latitude + 1,
+          },
+          symbol: {
+            type: "text",
+            color: "black",
+            haloColor: "white",
+            haloSize: "1px",
+            text: `${location.display_name}\nLat: ${latitude.toFixed(
+              6
+            )}\nLon: ${longitude.toFixed(6)}`,
+            font: {
+              size: 12,
+              family: "Arial",
+            },
+          },
+        });
+
+        // Add graphics to the layer
+        satelliteTracks.addMany([pinpoint, textGraphic]);
+
+        // Update coordinates state
+        setCoordinates({ latitude, longitude });
+
+        // Move the main view to the location
+        view.goTo({
+          target: [longitude, latitude],
+          zoom: 12,
+        });
+
+        // Update mini map center
+        miniView.center = [longitude, latitude];
+
+        // Capture and upload after a delay
+        setTimeout(() => {
+          captureMiniMapAndUpload(miniView);
+        }, 1500);
       });
-
-      // Add graphics to the layer
-      satelliteTracks.addMany([pinpoint, textGraphic]);
-
-      // Update coordinates state
-      setCoordinates({ latitude, longitude });
-
-      // Move the main view to the location
-      view.goTo({
-        target: [longitude, latitude],
-        zoom: 12
-      });
-
-      // Update mini map center
-      miniView.center = [longitude, latitude];
-
-      // Capture and upload after a delay
-      setTimeout(() => {
-        captureMiniMapAndUpload(miniView);
-      }, 1500);
-    });
-  }, [captureMiniMapAndUpload]);
+    },
+    [captureMiniMapAndUpload]
+  );
 
   // Add this useEffect to handle clicks outside the container
   useEffect(() => {
     function handleClickOutside(event) {
-      if (locationContainerRef.current && !locationContainerRef.current.contains(event.target)) {
+      if (
+        locationContainerRef.current &&
+        !locationContainerRef.current.contains(event.target)
+      ) {
         setIsInputFocused(false);
       }
     }
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   return (
     <div className="app-container">
       <div className="location-container" ref={locationContainerRef}>
-        <div style={{display: "flex", gap: "10px", alignItems: "center"}}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <input
             type="text"
             placeholder="Enter city, area, etc."
@@ -355,23 +366,20 @@ function App() {
             onFocus={() => setIsInputFocused(true)}
             className="location-input"
           />
-          <button
-            onClick={fetchLocation}
-            className="location-button"
-          >
+          <button onClick={fetchLocation} className="location-button">
             Search
           </button>
         </div>
         {isInputFocused && locations.length > 0 && (
           <ul className="location-list">
             {locations.map((loc, index) => (
-              <li 
-                key={index} 
+              <li
+                key={index}
                 onClick={() => {
                   selectLocation(loc);
                   setIsInputFocused(false);
-                  setQuery('');
-                }} 
+                  setQuery("");
+                }}
                 className="location-item"
               >
                 {loc.display_name}
