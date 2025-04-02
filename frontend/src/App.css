@@ -130,7 +130,13 @@ body,
   font-size: 14px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   color: white;
-  min-width: 250px;
+  min-width: 450px;
+}
+
+.coordinate-info {
+  /* font: 100 400 14px 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
+  flex-direction: column;
+  font-size: smaller;
 }
 
 .coordinate-panel p {
@@ -142,7 +148,7 @@ body,
   font-weight: 600;
   margin-top: 15px !important;
   color: #4aff9f !important;
-  font-size: 16px;
+  font-size: 24px;
   padding: 8px 12px;
   background: rgba(74, 255, 159, 0.1);
   border-radius: 6px;
@@ -192,7 +198,7 @@ body,
   min-height: 50vh;
 } */
 
-.calcite-theme-light{
+.calcite-theme-light {
   position: absolute;
   top: 0;
   left: 0;

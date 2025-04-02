@@ -3,17 +3,33 @@ import { loadModules } from "esri-loader";
 import "./App.css";
 
 // Separate the coordinate display into a memoized component
+
+const getNdviAssessment = (ndviValue) => {
+  if (ndviValue < 0)
+    return "No vegetation, likely water or artificial surfaces";
+  if (ndviValue < 0.05) return "Barren soil or very sparse vegetation";
+  if (ndviValue < 0.1) return "Sparse vegetation, possibly grassland or shrubs";
+  if (ndviValue < 0.15) return "Moderate vegetation density";
+  if (ndviValue < 0.2) return "Dense vegetation";
+  return "Very dense, healthy vegetation";
+};
 const CoordinatePanel = memo(({ coordinates, ndviValue }) => (
   <div className="coordinate-panel">
     {coordinates.latitude ? (
       <>
-        <p>Coordinates:</p>
-        <p>Latitude: {coordinates.latitude.toFixed(6)}</p>
-        <p>Longitude: {coordinates.longitude.toFixed(6)}</p>
-        {ndviValue && <p className="ndvi-value">{ndviValue.assessment}</p>}
+        {ndviValue && (
+          <p className="ndvi-value">
+            {getNdviAssessment(ndviValue.averageNDVI)}
+          </p>
+        )}
         {ndviValue && (
           <p className="ndvi-value">NDVI: {ndviValue.averageNDVI}</p>
         )}
+        <div className="coordinate-info">
+          <p>Coordinates:</p>
+          <p>Latitude: {coordinates.latitude.toFixed(6)}</p>
+          <p>Longitude: {coordinates.longitude.toFixed(6)}</p>
+        </div>
       </>
     ) : (
       <p>Click on the map to get coordinates</p>
